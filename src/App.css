@@ -1,0 +1,150 @@
+.Navbar {
+  position: sticky !important;
+  top: 0;
+  z-index: 1000 !important;
+  background-color: #131716 !important;
+  color: #e0e1dd !important;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+}
+.NavbarContainer {
+  display: flex;
+  justify-content: space-between;
+}
+.navbar-collapse {
+  justify-content: flex-end !important;
+}
+.navbar-toggler {
+  margin-left: auto;
+}
+.nav-link {
+  color: #e0e1dd !important;
+  padding: 0 40px 0 20px !important;
+  transition: transform 0.3s ease-in-out, color 0.3s ease-in-out !important;}
+.nav-link.active{
+  transform: scale(1.2) !important;
+  color: #8ed4ba !important;
+}
+.custom-dropdown {
+  position: relative;
+}
+.custom-dropdown .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  display: none;
+  background-color: white;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  min-width: 150px;
+  padding: 5px 0;
+}
+
+.custom-dropdown .dropdown-menu.show {
+  display: block;
+}
+
+.custom-dropdown .dropdown-item {
+  color: black !important;
+  padding: 8px 15px;
+  text-decoration: none;
+  display: block;
+}
+.navbar-toggler-icon {
+  filter: invert(1);
+}
+.Brand {
+  font-size: 3em !important;
+  color: #e0e1dd !important;
+  margin-right: auto;
+  transition: transform 0.3s ease-in-out;
+}
+.Brand:hover {
+  transform: scale(1.2);
+  color: #8ed4ba !important;
+}
+.Herosection {
+  background-image: url("./assets/imgs/herosection.png");
+  background-size: contain;
+  height: 214px;
+}
+.SobreNosotros {
+  text-align: center;
+  padding: 66px;
+}
+.Title {
+  font-size: 2.2em;
+  padding-bottom: 22px;
+}
+.Soluciones {
+  display: flex;
+  justify-content: center;
+  gap: 33px;
+  flex-wrap: wrap;
+}
+.SolucionesItem {
+  width: 333px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 55px 11px 22px 22px;
+  border-radius: 50%;
+  background-color: #778DA9;
+  color: #e0e1dd;
+  font-weight: bold;
+  box-shadow: 7px 7px 7px 7px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+.SolucionesItem:hover {
+  transform: scale(1.2);
+}
+.Footer {
+  margin-top: 66px;
+  padding: 11px;
+  background-color: #131716;
+  color: #e0e1dd;
+  display: flex;
+}
+.Redes {
+  font-size: 2em;
+  padding: 66px 0 0 15px;
+}
+.Icon {
+  padding: 16px;
+  transition: transform 0.3s ease-in-out;
+}
+.Icon:hover {
+  color: #8ed4ba;
+  transform: scale(1.5);
+}
+.LinksUtiles {
+  display: flex;
+  flex-direction: column;
+  padding: 22px 0 0 44px;
+}
+.LinksUtiles a {
+  text-decoration: none !important;
+  color: #e0e1dd;
+  padding-bottom: 11px;
+  transition: transform 0.3s ease-in-out;
+}
+.LinksUtiles a:hover {
+  color: #8ed4ba;
+  transform: scale(1.2);
+}
+
+
+@media (min-width: 1200px) {
+  .Herosection {
+    height: 768px;
+  }
+  .Soluciones {
+    gap: 111px;
+  }
+  .Footer {
+    justify-content: space-around;
+  }
+}
