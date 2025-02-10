@@ -37,7 +37,7 @@ function Header() {
           <Nav className="ms-auto">
             <Nav.Link as={NavLink} to="/">Inicio</Nav.Link>
             <Nav.Link as={NavLink} to="/productos">Productos</Nav.Link>
-            <Nav.Link as={NavLink} to="/cart">Carrito</Nav.Link>
+            <Nav.Link as={NavLink} to="/carrito">Carrito</Nav.Link>
 
             {/* Enlace a "Publicar Producto" visible solo si el usuario está autenticado */}
             {isAuthenticated && (

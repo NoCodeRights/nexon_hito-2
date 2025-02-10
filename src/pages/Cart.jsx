@@ -6,7 +6,7 @@ const Cart = () => {
     <div className="container my-4">
       <h2>Carrito de Compras</h2>
       <p>Tu carrito está vacío.</p>
-      <Link to="/products" className="btn btn-primary">Ver Productos</Link>
+      <Link to="/productos" className="btn btn-primary">Ver Productos</Link>
     </div>
   );
 };
