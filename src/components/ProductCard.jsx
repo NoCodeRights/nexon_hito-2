@@ -33,6 +33,7 @@ const ProductCard = () => {
 
     // Definir un producto de ejemplo
     const product = { id: 1, name: "Remera", image: Remera1 };
+    
 
     return (
         <>

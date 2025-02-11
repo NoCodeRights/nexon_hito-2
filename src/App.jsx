@@ -13,6 +13,7 @@ import Cart from './pages/Cart';
 import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './pages/Profile';
 import Carrousel from './components/Carrousel';
+import PoliticaPrivacidad from './pages/PoliticaPrivacidad';
 
 function App() {
   // Estado de autenticación simulado. 
@@ -22,7 +23,6 @@ function App() {
     <>
       {/* Pasa el estado de autenticación al Navbar */}
       <Header isAuthenticated={isAuthenticated} />
-      <Carrousel />
       <main className="container my-4">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -49,6 +49,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/politica" element={<PoliticaPrivacidad />} />
           {/* Se puede agregar una ruta para "logout" que limpie la autenticación */}
           {/* <Route path="/logout" element={<Logout setIsAuthenticated={setIsAuthenticated} />} /> */}
         </Routes>

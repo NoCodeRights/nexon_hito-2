@@ -1,6 +1,8 @@
 // Esta página es usada como ejemplo con simulaciones de llamadas a la API. Quizás se borre en el futuro.
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
+import Carrousel from '../components/Carrousel';
+
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
@@ -17,6 +19,7 @@ const ProductList = () => {
 
   return (
     <div className="container">
+      <Carrousel/>
       <h2>Listado de Productos</h2>
       <div className="row">
         {products.map(product => (
