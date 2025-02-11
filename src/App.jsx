@@ -12,6 +12,7 @@ import PublishProduct from './pages/PublishProduct';
 import Cart from './pages/Cart';
 import ProtectedRoute from './components/ProtectedRoute';
 import Profile from './pages/Profile';
+import Carrousel from './components/Carrousel';
 
 function App() {
   // Estado de autenticación simulado. 
@@ -21,6 +22,7 @@ function App() {
     <>
       {/* Pasa el estado de autenticación al Navbar */}
       <Header isAuthenticated={isAuthenticated} />
+      <Carrousel />
       <main className="container my-4">
         <Routes>
           <Route path="/" element={<Home />} />

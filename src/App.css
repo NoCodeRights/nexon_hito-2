@@ -136,6 +136,12 @@
   transform: scale(1.2);
 }
 
+.carousel-image {
+  max-height: 400px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
 
 @media (min-width: 1200px) {
   .Herosection {

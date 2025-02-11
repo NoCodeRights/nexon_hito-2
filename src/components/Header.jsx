@@ -35,13 +35,21 @@ function Header() {
 
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link as={NavLink} to="/">Inicio</Nav.Link>
-            <Nav.Link as={NavLink} to="/productos">Productos</Nav.Link>
-            <Nav.Link as={NavLink} to="/carrito">Carrito</Nav.Link>
+            <Nav.Link as={NavLink} to="/">
+              Inicio
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/productos">
+              Productos
+            </Nav.Link>
+            <Nav.Link as={NavLink} to="/carrito">
+              Carrito
+            </Nav.Link>
 
             {/* Enlace a "Publicar Producto" visible solo si el usuario está autenticado */}
             {isAuthenticated && (
-              <Nav.Link as={NavLink} to="/publish">Publicar Producto</Nav.Link>
+              <Nav.Link as={NavLink} to="/publish">
+                Publicar Producto
+              </Nav.Link>
             )}
 
             <Nav.Item
@@ -50,20 +58,38 @@ function Header() {
               onMouseLeave={() => setShowDropdown(false)}
             >
               {/* Si está autenticado, "Mi cuenta" lleva a un perfil; si no, a login */}
-              <Nav.Link as={NavLink} to={isAuthenticated ? "/profile" : "/login"} className="nav-link">
+              <Nav.Link
+                as={NavLink}
+                to={isAuthenticated ? "/profile" : "/login"}
+                className="nav-link"
+              >
                 Mi cuenta
               </Nav.Link>
 
               <div className={`dropdown-menu ${showDropdown ? "show" : ""}`}>
                 {!isAuthenticated ? (
                   <>
-                    <NavLink className="dropdown-item" to="/login">Iniciar Sesión</NavLink>
-                    <NavLink className="dropdown-item" to="/register">Registrarse</NavLink>
+                    <NavLink className="dropdown-item" to="/login">
+                      Iniciar Sesión
+                    </NavLink>
+                    <NavLink className="dropdown-item" to="/register">
+                      Registrarse
+                    </NavLink>
                   </>
                 ) : (
                   <>
-                    <NavLink className="dropdown-item" to="/profile">Perfil</NavLink>
-                    <button className="dropdown-item" onClick={handleLogout} style={{ border: "none", background: "none", cursor: "pointer" }}>
+                    <NavLink className="dropdown-item" to="/profile">
+                      Perfil
+                    </NavLink>
+                    <button
+                      className="dropdown-item"
+                      onClick={handleLogout}
+                      style={{
+                        border: "none",
+                        background: "none",
+                        cursor: "pointer",
+                      }}
+                    >
                       Cerrar Sesión
                     </button>
                   </>
