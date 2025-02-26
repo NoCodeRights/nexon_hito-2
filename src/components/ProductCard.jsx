@@ -1,63 +1,63 @@
-import Carousel from 'react-bootstrap/Carousel';
-import Mono from "../assets/imgs/mono.jpg";
-import Remera from "../assets/imgs/remera.jpg";
-import Remera1 from "../assets/imgs/remera1.jpg";
-import Short from "../assets/imgs/short.jpg";
-import Button from 'react-bootstrap/Button';
-import Card from 'react-bootstrap/Card';
-import { FaHeart, FaRegHeart } from "react-icons/fa";
-import { useState, useEffect } from 'react';
+import { useContext } from 'react';
+import { ApiContext } from '../Context/ApiContext';
+import { Card, Button } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 
-const ProductCard = () => {
-    const [favorites, setFavorites] = useState([]);
+const ProductCard = ({ product }) => {
+  const { addToCart, handlePurchase } = useContext(ApiContext);
 
-    useEffect(() => {
-        const storedFavorites = localStorage.getItem("favorites");
-        if (storedFavorites) {
-            setFavorites(JSON.parse(storedFavorites));
-        }
-    }, []);
+  if (!product) {
+    return <p>Producto no disponible</p>;
+  }
 
-    const toggleFavorite = (product) => {
-        let updatedFavorites;
+  const { id, title, price, stock, image_url } = product;
 
-        if (favorites.some((fav) => fav.id === product.id)) {
-            updatedFavorites = favorites.filter((fav) => fav.id !== product.id);
-        } else {
-            updatedFavorites = [...favorites, product];
-        }
+  return (
+    <Card style={{ width: '18rem' }} className="mb-3">
+      <Card.Img
+        variant="top"
+        src={image_url ? `http://localhost:5000${image_url}` : '/fallback-image.jpg'}
+        alt={title}
+        onError={(e) => {
+          console.log("Error cargando la imagen:", image_url); // Debugging
+          e.target.src = '/fallback-image.jpg';
+        }}
+      />
+      <Card.Body>
+        <Card.Title>{title}</Card.Title>
+        <Card.Text>Precio: ${Number(price)}</Card.Text>
+        <Card.Text>Stock disponible: {stock > 0 ? stock : 'Agotado'}</Card.Text>
 
-        setFavorites(updatedFavorites);
-        localStorage.setItem("favorites", JSON.stringify(updatedFavorites)); // Guardar en localStorage
-    };
+        <Button
+          variant="primary"
+          onClick={() => addToCart(product)}
+          disabled={stock <= 0} // Asegúrate de que el botón esté deshabilitado si el stock es 0 o menor
+        >
+          {stock > 0 ? 'Agregar al carrito' : 'Sin stock'}
+        </Button>
 
-    // Definir un producto de ejemplo
-    const product = { id: 1, name: "Remera", image: Remera1 };
-    
+        <Button
+          variant="success"
+          className="mt-2"
+          onClick={() => handlePurchase(id)}
+          disabled={stock <= 0} // Asegúrate de que el botón esté deshabilitado si el stock es 0 o menor
+        >
+          Comprar ahora
+        </Button>
+      </Card.Body>
+    </Card>
+  );
+};
 
-    return (
-        <>
-            
-            <Card style={{ width: '18rem' }} className="ProductCards">
-                <Card.Img variant="top" src={product.image} alt={`Foto producto ${product.name}`} />
-                <Card.Body>
-                    <Card.Title>{product.name}</Card.Title>
-                    <Card.Text>
-                        Some quick example text to build on the card title and make up the
-                        bulk of the cards content.
-                    </Card.Text>
-                    <Button variant="primary">Comprar</Button>
-                    <Button variant="light" onClick={() => toggleFavorite(product)} style={{ marginLeft: "10px" }}>
-                        {favorites.some((fav) => fav.id === product.id) ? (
-                            <FaHeart color="red" />
-                        ) : (
-                            <FaRegHeart color="gray" />
-                        )}
-                    </Button>
-                </Card.Body>
-            </Card>
-        </>
-    );
-}
+ProductCard.propTypes = {
+  product: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    title: PropTypes.string.isRequired,
+    price: PropTypes.oneOfType([PropTypes.number, PropTypes.string]).isRequired,
+    stock: PropTypes.number.isRequired,
+    image_url: PropTypes.string,
+  }).isRequired,
+};
 
 export default ProductCard;
+

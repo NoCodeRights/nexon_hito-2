@@ -1,12 +1,21 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { useContext } from 'react';
+import { ApiContext } from '../Context/ApiContext';
+import {  ListGroup } from 'react-bootstrap';
 
 const Cart = () => {
+  const { cart } = useContext(ApiContext);
+
   return (
-    <div className="container my-4">
+    <div>
       <h2>Carrito de Compras</h2>
-      <p>Tu carrito está vacío.</p>
-      <Link to="/productos" className="btn btn-primary">Ver Productos</Link>
+      <ListGroup>
+        {cart.map((item) => (
+          <ListGroup.Item key={item.id}>
+            <img src={item.image} alt={item.title} width="50" />
+            {item.title} - Cantidad: {item.quantity} - Precio: ${item.price * item.quantity}
+          </ListGroup.Item>
+        ))}
+      </ListGroup>
     </div>
   );
 };

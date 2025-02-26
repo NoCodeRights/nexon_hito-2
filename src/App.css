@@ -20,8 +20,9 @@
 }
 .nav-link {
   color: #e0e1dd !important;
-  padding: 0 40px 0 20px !important;
-  transition: transform 0.3s ease-in-out, color 0.3s ease-in-out !important;}
+  padding: 10px 50px !important;
+  transition: transform 0.3s ease-in-out, color 0.3s ease-in-out !important;
+}
 .nav-link.active{
   transform: scale(1.2) !important;
   color: #8ed4ba !important;
@@ -67,7 +68,7 @@
 .Herosection {
   background-image: url("./assets/imgs/herosection.png");
   background-size: contain;
-  height: 214px;
+  height: 202px;
 }
 .SobreNosotros {
   text-align: center;
@@ -106,7 +107,12 @@
   padding: 11px;
   background-color: #131716;
   color: #e0e1dd;
+}
+.Navegacion {
   display: flex;
+}
+.Derechos {
+  margin: 30px ;
 }
 .Redes {
   font-size: 2em;
@@ -135,22 +141,34 @@
   color: #8ed4ba;
   transform: scale(1.2);
 }
-
 .carousel-image {
   max-height: 400px;
   object-fit: cover;
   border-radius: 10px;
 }
+.products {
+  margin-top: 100px;
+  padding: 44px;
+  display: grid;
+  gap: 55px;
+}
 
 
 @media (min-width: 1200px) {
   .Herosection {
-    height: 768px;
+    height: 612px;
+    width: 1222px;
   }
   .Soluciones {
     gap: 111px;
   }
-  .Footer {
+  .Navegacion {
     justify-content: space-around;
+  }
+  .Derechos {
+    margin: 55px 555px;
+  }
+  .products {
+    grid-template-columns: auto auto auto;
   }
 }

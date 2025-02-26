@@ -1,33 +1,32 @@
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import UserContext from '../Context/UserContext';
 
 function Profile() {
-    const navigate = useNavigate();
-    const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const { user, logout } = useContext(UserContext);
 
-    useEffect(() => {
-        const loggedUser = localStorage.getItem("user");
-        if (!loggedUser) {
-            navigate("/login"); // Redirige si no hay sesión activa
-        } else {
-            setUser(JSON.parse(loggedUser)); // Guarda los datos del usuario
-        }
-    }, [navigate]);
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
-    return (
-        <div className="container mt-5">
-            <h2>Perfil</h2>
-            {user ? (
-                <div>
-                    <p><strong>Nombre:</strong> {user.name}</p>
-                    <p><strong>Correo:</strong> {user.email}</p>
-                    {/* Aquí se puede agregar más info del usuario */}
-                </div>
-            ) : (
-                <p>Cargando...</p>
-            )}
+  return (
+    <div className="container mt-5">
+      <h2>Perfil</h2>
+      {user ? (
+        <div>
+          <p><strong>Nombre:</strong> {user.name}</p>
+          <p><strong>Correo:</strong> {user.email}</p>
+          <button onClick={handleLogout} className="btn btn-danger">
+            Cerrar Sesión
+          </button>
         </div>
-    );
+      ) : (
+        <p>Cargando...</p>
+      )}
+    </div>
+  );
 }
 
 export default Profile;
