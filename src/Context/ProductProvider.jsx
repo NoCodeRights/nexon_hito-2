@@ -3,7 +3,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { ProductContext } from "./ProductContext"; 
 import PropTypes from "prop-types";
 
-const API_URL = "http://localhost:5000/api/products";
+const API_URL = import.meta.env.VITE_API_URL + "/products";
 
 const ProductProvider = ({ children }) => {
   const [products, setProducts] = useState([]);

@@ -1,8 +1,8 @@
-import  { useState, useContext } from "react";
+import { useState, useContext } from "react";
 import axios from "axios";
 import { ProductContext } from "../Context/ProductContext";
 
-const API_URL = "http://localhost:5000/api/products";
+const API_URL = import.meta.env.VITE_API_URL + "/products";
 
 const PublishProduct = () => {
   const [title, setTitle] = useState("");

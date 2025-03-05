@@ -8,7 +8,7 @@ const ApiProvider = ({ children }) => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/products");
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/products`);
       const data = await response.json();
 
       console.log("Respuesta de la API:", data);
@@ -51,7 +51,7 @@ const ApiProvider = ({ children }) => {
   }, []);
 
   const handlePurchase = useCallback((productId) => {
-    fetch(`http://localhost:5000/api/products/${productId}`, {
+    fetch(`${import.meta.env.VITE_API_URL}/products/${productId}`, {
       method: "DELETE",
     })
       .then(() => {

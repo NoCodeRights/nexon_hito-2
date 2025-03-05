@@ -16,7 +16,7 @@ const ProductCard = ({ product }) => {
     <Card style={{ width: '18rem' }} className="mb-3">
       <Card.Img
         variant="top"
-        src={image_url ? `http://localhost:5000${image_url}` : '/fallback-image.jpg'}
+        src={image_url ? `${import.meta.env.VITE_API_URL}${image_url}` : '/fallback-image.jpg'}
         alt={title}
         onError={(e) => {
           console.log("Error cargando la imagen:", image_url); // Debugging

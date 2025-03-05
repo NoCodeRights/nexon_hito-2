@@ -2,6 +2,8 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import UserContext from './UserContext';
 
+const API_URL = import.meta.env.VITE_API_URL + "/users";
+
 const UserProvider = ({ children }) => {
   const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [user, setUser] = useState(null);
@@ -16,7 +18,7 @@ const UserProvider = ({ children }) => {
 
   const validateToken = useCallback(async (token) => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/validate', {
+      const response = await fetch(`${API_URL}/validate`, {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -46,7 +48,7 @@ const UserProvider = ({ children }) => {
 
   const login = useCallback(async (email, password) => {
     try {
-      const response = await fetch('http://localhost:5000/api/users/login', {
+      const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
