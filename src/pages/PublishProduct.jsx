@@ -1,8 +1,8 @@
 import { useState, useContext } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { Container, Form, Button } from "react-bootstrap";
+import api from "../api";
 import { ProductContext } from "../Context/ProductContext";
-
-const API_URL = import.meta.env.VITE_API_URL + "/products";
 
 const PublishProduct = () => {
   const [title, setTitle] = useState("");
@@ -10,11 +10,14 @@ const PublishProduct = () => {
   const [price, setPrice] = useState("");
   const [condition, setCondition] = useState("nuevo");
   const [stock, setStock] = useState("");
-  const [image, setImage] = useState(null); // Cambiamos a una sola imagen
+  const [image, setImage] = useState(null);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
   const { fetchProducts } = useContext(ProductContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     const token = localStorage.getItem("token");
     if (!token) {
@@ -22,126 +25,80 @@ const PublishProduct = () => {
       return;
     }
 
-    const data = new FormData();
-    data.append("title", title);
-    data.append("description", description);
-    data.append("price", price);
-    data.append("condition", condition);
-    data.append("stock", stock);
-    data.append("image", image); // Asegúrate de que el campo se llame "image"
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("price", price);
+    formData.append("condition", condition);
+    formData.append("stock", stock);
+    if (image) {
+      formData.append("image", image);
+    }
 
     try {
-      const response = await axios.post(API_URL, data, {
+      const response = await api.post("/products", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
         },
         withCredentials: true,
       });
-
       console.log("Producto publicado:", response.data);
       alert("Producto publicado con éxito");
-
-      // Llama a fetchProducts para actualizar la lista de productos
+      // Actualiza la lista de productos
       fetchProducts();
-
-      // Limpia el formulario después de publicar
+      // Redirige a la página de productos
+      navigate("/productos");
+      // Limpia el formulario
       setTitle("");
       setDescription("");
       setPrice("");
       setCondition("nuevo");
       setStock("");
       setImage(null);
-    } catch (error) {
-      console.error("Error al publicar el producto:", error);
-      alert("Hubo un error al publicar el producto. Inténtalo de nuevo.");
+    } catch (err) {
+      console.error("Error al publicar el producto:", err);
+      setError("Hubo un error al publicar el producto. Inténtalo de nuevo.");
     }
   };
 
   return (
-    <div className="container">
+    <Container>
       <h2>Publicar Producto</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="title" className="form-label">
-            Título
-          </label>
-          <input
-            type="text"
-            className="form-control"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="description" className="form-label">
-            Descripción
-          </label>
-          <textarea
-            className="form-control"
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="price" className="form-label">
-            Precio
-          </label>
-          <input
-            type="number"
-            className="form-control"
-            id="price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="condition" className="form-label">
-            Estado del Producto
-          </label>
-          <select
-            className="form-select"
-            id="condition"
-            value={condition}
-            onChange={(e) => setCondition(e.target.value)}
-            required
-          >
+      {error && <p className="text-danger">{error}</p>}
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="title" className="mb-3">
+          <Form.Label>Título</Form.Label>
+          <Form.Control type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
+        </Form.Group>
+        <Form.Group controlId="description" className="mb-3">
+          <Form.Label>Descripción</Form.Label>
+          <Form.Control as="textarea" rows={3} value={description} onChange={(e) => setDescription(e.target.value)} required />
+        </Form.Group>
+        <Form.Group controlId="price" className="mb-3">
+          <Form.Label>Precio</Form.Label>
+          <Form.Control type="number" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} required />
+        </Form.Group>
+        <Form.Group controlId="condition" className="mb-3">
+          <Form.Label>Estado del Producto</Form.Label>
+          <Form.Control as="select" value={condition} onChange={(e) => setCondition(e.target.value)} required>
             <option value="nuevo">Nuevo</option>
             <option value="usado">Usado</option>
-          </select>
-        </div>
-        <div className="mb-3">
-          <label htmlFor="stock" className="form-label">
-            Stock
-          </label>
-          <input
-            type="number"
-            className="form-control"
-            id="stock"
-            value={stock}
-            onChange={(e) => setStock(e.target.value)}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label className="form-label">Imagen</label>
-          <input
-            type="file"
-            className="form-control"
-            onChange={(e) => setImage(e.target.files[0])} // Asegúrate de usar "image" como nombre del campo
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">
+          </Form.Control>
+        </Form.Group>
+        <Form.Group controlId="stock" className="mb-3">
+          <Form.Label>Stock</Form.Label>
+          <Form.Control type="number" value={stock} onChange={(e) => setStock(e.target.value)} required />
+        </Form.Group>
+        <Form.Group controlId="image" className="mb-3">
+          <Form.Label>Imagen</Form.Label>
+          <Form.Control type="file" onChange={(e) => setImage(e.target.files[0])} required />
+        </Form.Group>
+        <Button variant="primary" type="submit">
           Publicar Producto
-        </button>
-      </form>
-    </div>
+        </Button>
+      </Form>
+    </Container>
   );
 };
 

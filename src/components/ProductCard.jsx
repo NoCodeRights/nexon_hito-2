@@ -1,25 +1,27 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ApiContext } from '../Context/ApiContext';
 import { Card, Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import api from '../api'; // Importamos API para peticiones al backend
+import api from '../api'; // Axios configurado
 import UserContext from '../Context/UserContext';
 
 const ProductCard = ({ product }) => {
   const { addToCart, fetchProducts } = useContext(ApiContext);
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
+  const [imgError, setImgError] = useState(false);
 
   if (!product) {
     return <p>Producto no disponible</p>;
   }
 
   const { id, title, price, stock, image_url, user_id } = product;
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  const isOwner = user && user.id === user_id; // Si el usuario autenticado es el dueño
+  // Para imágenes se usa la URL del backend sin el prefijo /api
+  const backendUrl = import.meta.env.VITE_BACKEND_URL; 
+  const isOwner = user && user.id === user_id;
 
-  // Reducir stock del producto
+  // Función para reducir stock (para el dueño)
   const reduceStock = async () => {
     if (stock > 0) {
       try {
@@ -31,7 +33,7 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // Aumentar stock del producto
+  // Función para aumentar stock (para el dueño)
   const increaseStock = async () => {
     try {
       await api.put(`/products/${id}/increase-stock`);
@@ -41,7 +43,7 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // Eliminar producto
+  // Función para eliminar el producto (para el dueño)
   const deleteProduct = async () => {
     try {
       await api.delete(`/products/${id}`);
@@ -51,7 +53,7 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // Comprar producto (lo agrega al carrito y redirige)
+  // Función para comprar (agrega al carrito y redirige al carrito)
   const handleBuyNow = () => {
     addToCart(product);
     navigate('/carrito');
@@ -61,19 +63,17 @@ const ProductCard = ({ product }) => {
     <Card style={{ width: '18rem' }} className="mb-3">
       <Card.Img
         variant="top"
-        src={image_url ? `${backendUrl}${image_url}` : '/fallback-image.jpg'}
+        src={image_url && !imgError ? `${backendUrl}${image_url}` : '/fallback-image.jpg'}
         alt={title}
         onError={(e) => {
           console.error("Error cargando la imagen:", e.target.src);
-          e.target.src = '/fallback-image.jpg';
+          setImgError(true);
         }}
       />
       <Card.Body>
         <Card.Title>{title}</Card.Title>
         <Card.Text>Precio: ${Number(price)}</Card.Text>
         <Card.Text>Stock disponible: {stock > 0 ? stock : 'Sin stock'}</Card.Text>
-
-        {/* Si el usuario es el dueño, mostrar botones de gestión */}
         {isOwner ? (
           <>
             <Button

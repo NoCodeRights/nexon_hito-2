@@ -13,9 +13,11 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
 import PoliticaPrivacidad from "./pages/PoliticaPrivacidad";
 import UserProvider from "./Context/UserProvider";
-import  ApiProvider from "./Context/ApiProvider";
+import ApiProvider from "./Context/ApiProvider";
 import ProductProvider from "./Context/ProductProvider";
-import Favoritos from "./pages/Favorites"
+import Favoritos from "./pages/Favorites";
+import MyProducts from "./pages/MyProducts";
+//import History from "./pages/History";
 
 function App() {
   return (
@@ -32,22 +34,10 @@ function App() {
               <Route path="/productos/:id" element={<ProductDetail />} />
               <Route path="/carrito" element={<Cart />} />
               <Route path="/favoritos" element={<Favoritos />} />
-              <Route
-                path="/publish"
-                element={
-                  <ProtectedRoute>
-                    <PublishProduct />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/perfil"
-                element={
-                  <ProtectedRoute>
-                    <Profile />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/publish" element={<ProtectedRoute><PublishProduct /></ProtectedRoute>} />
+              <Route path="/perfil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+              <Route path="/mis-productos" element={<ProtectedRoute><MyProducts /></ProtectedRoute>} />
+              {/* <Route path="/historial" element={<ProtectedRoute><History /></ProtectedRoute>} /> */}
               <Route path="/politica" element={<PoliticaPrivacidad />} />
             </Routes>
           </main>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { ApiContext } from "./ApiContext";
 import PropTypes from "prop-types";
-import api from "../api"; // Importamos axios configurado
+import api from "../api";
 
 const ApiProvider = ({ children }) => {
   const [products, setProducts] = useState([]);
@@ -11,19 +11,16 @@ const ApiProvider = ({ children }) => {
     try {
       const response = await api.get("/products");
       console.log("Respuesta de la API:", response.data);
-  
       if (Array.isArray(response.data)) {
         setProducts(response.data);
       } else {
         console.error("La respuesta de productos no es un array:", response.data);
-        // Opcionalmente, muestra un mensaje o establece products a un array vacío
         setProducts([]);
       }
     } catch (error) {
       console.error("Error al obtener productos:", error);
     }
   };
-  
 
   useEffect(() => {
     fetchProducts();
@@ -53,7 +50,17 @@ const ApiProvider = ({ children }) => {
     }
   }, []);
 
-  const value = useMemo(() => ({ products, cart, addToCart, handlePurchase }), [products, cart, addToCart, handlePurchase]);
+  const value = useMemo(
+    () => ({
+      products,
+      cart,
+      addToCart,
+      handlePurchase,
+      fetchProducts,
+      setCart,
+    }),
+    [products, cart, addToCart, handlePurchase]
+  );
 
   return <ApiContext.Provider value={value}>{children}</ApiContext.Provider>;
 };
