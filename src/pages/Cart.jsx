@@ -7,17 +7,27 @@ const Cart = () => {
   const { cart, fetchProducts, setCart } = useContext(ApiContext);
 
   const handleCheckout = async () => {
+    // Obtener el token almacenado
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Debes iniciar sesión para proceder a la compra");
+      return;
+    }
+
     try {
-      // Por cada producto en el carrito, reducimos el stock en 1 por unidad comprada.
+      // Por cada producto en el carrito, reducir el stock en 1 por unidad comprada
       for (let item of cart) {
-        for (let i = 0; i < item.quantity; i++) {
-          await api.put(`/products/${item.id}/reduce-stock`);
-        }
+        // Enviamos el token en el header para autorizar la solicitud
+        await api.put(
+          `/products/${item.id}/reduce-stock`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
       }
       alert("Compra exitosa");
-      // Vaciar el carrito después de la compra.
+      // Vaciar el carrito después de la compra
       setCart([]);
-      // Actualizar la lista de productos para reflejar el stock actualizado.
+      // Actualizar la lista de productos para reflejar el stock actualizado
       fetchProducts();
     } catch (error) {
       console.error("Error al procesar la compra:", error);
@@ -36,7 +46,11 @@ const Cart = () => {
             {cart.map((item) => (
               <ListGroup.Item key={item.id}>
                 <img
-                  src={item.image_url ? `${import.meta.env.VITE_BACKEND_URL}${item.image_url}` : '/fallback-image.jpg'}
+                  src={
+                    item.image_url
+                      ? `${import.meta.env.VITE_BACKEND_URL}${item.image_url}`
+                      : '/fallback-image.jpg'
+                  }
                   alt={item.title}
                   width="50"
                 />
