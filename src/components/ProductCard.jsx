@@ -17,15 +17,19 @@ const ProductCard = ({ product }) => {
   }
 
   const { id, title, price, stock, image_url, user_id } = product;
-  // Para imágenes se usa la URL del backend sin el prefijo /api
   const backendUrl = import.meta.env.VITE_BACKEND_URL; 
   const isOwner = user && user.id === user_id;
+  const token = localStorage.getItem("token");
 
-  // Función para reducir stock (para el dueño)
+  // Función para reducir stock (acción protegida)
   const reduceStock = async () => {
     if (stock > 0) {
       try {
-        await api.put(`/products/${id}/reduce-stock`);
+        await api.put(
+          `/products/${id}/reduce-stock`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
         fetchProducts();
       } catch (error) {
         console.error("Error reduciendo stock:", error);
@@ -33,27 +37,34 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // Función para aumentar stock (para el dueño)
+  // Función para aumentar stock (acción protegida)
   const increaseStock = async () => {
     try {
-      await api.put(`/products/${id}/increase-stock`);
+      await api.put(
+        `/products/${id}/increase-stock`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       fetchProducts();
     } catch (error) {
       console.error("Error aumentando stock:", error);
     }
   };
 
-  // Función para eliminar el producto (para el dueño)
+  // Función para eliminar producto (acción protegida)
   const deleteProduct = async () => {
     try {
-      await api.delete(`/products/${id}`);
+      await api.delete(
+        `/products/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       fetchProducts();
     } catch (error) {
       console.error("Error eliminando producto:", error);
     }
   };
 
-  // Función para comprar (agrega al carrito y redirige al carrito)
+  // Función para comprar el producto: agrega al carrito y redirige a la página de carrito
   const handleBuyNow = () => {
     addToCart(product);
     navigate('/carrito');
@@ -74,6 +85,7 @@ const ProductCard = ({ product }) => {
         <Card.Title>{title}</Card.Title>
         <Card.Text>Precio: ${Number(price)}</Card.Text>
         <Card.Text>Stock disponible: {stock > 0 ? stock : 'Sin stock'}</Card.Text>
+
         {isOwner ? (
           <>
             <Button
