@@ -6,23 +6,23 @@ import api from "../api";
 const Cart = () => {
   const { cart, fetchProducts, setCart } = useContext(ApiContext);
 
+  // Función para proceder a la compra, reduciendo el stock por cada unidad
   const handleCheckout = async () => {
-    // Obtener el token almacenado
     const token = localStorage.getItem("token");
     if (!token) {
       alert("Debes iniciar sesión para proceder a la compra");
       return;
     }
-
     try {
-      // Por cada producto en el carrito, reducir el stock en 1 por unidad comprada
       for (let item of cart) {
-        // Enviamos el token en el header para autorizar la solicitud
-        await api.put(
-          `/products/${item.id}/reduce-stock`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const quantity = item.quantity || 1;
+        for (let i = 0; i < quantity; i++) {
+          await api.put(
+            `/products/${item.id}/reduce-stock`,
+            {},
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+        }
       }
       alert("Compra exitosa");
       // Vaciar el carrito después de la compra
@@ -33,6 +33,17 @@ const Cart = () => {
       console.error("Error al procesar la compra:", error);
       alert("Error al procesar la compra");
     }
+  };
+
+  // Función para eliminar un producto individual del carrito
+  const removeItem = (id) => {
+    const updatedCart = cart.filter((item) => item.id !== id);
+    setCart(updatedCart);
+  };
+
+  // Función para limpiar todo el carrito
+  const clearCart = () => {
+    setCart([]);
   };
 
   return (
@@ -55,11 +66,17 @@ const Cart = () => {
                   width="50"
                 />
                 {item.title} - Cantidad: {item.quantity} - Precio: ${item.price * item.quantity}
+                <Button variant="danger" size="sm" onClick={() => removeItem(item.id)} className="ms-2">
+                  Eliminar
+                </Button>
               </ListGroup.Item>
             ))}
           </ListGroup>
           <Button variant="success" className="mt-3" onClick={handleCheckout}>
             Proceder a compra
+          </Button>
+          <Button variant="secondary" className="mt-3 ms-2" onClick={clearCart}>
+            Limpiar Carrito
           </Button>
         </>
       )}

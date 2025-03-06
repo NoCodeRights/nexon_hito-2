@@ -1,29 +1,47 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ApiContext } from '../Context/ApiContext';
 import { Card, Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import api from '../api'; // Axios configurado
 import UserContext from '../Context/UserContext';
+import { FaHeart, FaRegHeart } from "react-icons/fa"; 
 
 const ProductCard = ({ product }) => {
   const { addToCart, fetchProducts } = useContext(ApiContext);
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
   const [imgError, setImgError] = useState(false);
-
+  const [isFavorite, setIsFavorite] = useState(false);
+  
   if (!product) {
     return <p>Producto no disponible</p>;
   }
 
   const { id, title, price, stock, image_url, user_id } = product;
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  if (!backendUrl) {
-    console.error("VITE_BACKEND_URL no está definido en las variables de entorno");
-  }
-  
-  const isOwner = user && user.id === user_id;
   const token = localStorage.getItem("token");
+  const isOwner = user && user.id === user_id;
+
+  // Verificar si el producto está en favoritos al cargar la página
+  useEffect(() => {
+    const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    setIsFavorite(storedFavorites.some(fav => fav.id === id));
+  }, [id]);
+
+  // Agregar o quitar de favoritos
+  const toggleFavorite = () => {
+    let storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    
+    if (isFavorite) {
+      storedFavorites = storedFavorites.filter(fav => fav.id !== id);
+    } else {
+      storedFavorites.push(product);
+    }
+
+    localStorage.setItem("favorites", JSON.stringify(storedFavorites));
+    setIsFavorite(!isFavorite);
+  };
 
   // Reducir stock (requiere token)
   const reduceStock = async () => {
@@ -78,11 +96,7 @@ const ProductCard = ({ product }) => {
     <Card style={{ width: '18rem' }} className="mb-3">
       <Card.Img
         variant="top"
-        src={
-          image_url && !imgError 
-            ? `${backendUrl}${image_url}` 
-            : '/fallback-image.jpg'
-        }
+        src={image_url && !imgError ? `${backendUrl}${image_url}` : '/fallback-image.jpg'}
         alt={title}
         onError={(e) => {
           console.error("Error cargando la imagen:", e.target.src);
@@ -94,6 +108,16 @@ const ProductCard = ({ product }) => {
         <Card.Text>Precio: ${Number(price)}</Card.Text>
         <Card.Text>Stock disponible: {stock > 0 ? stock : 'Sin stock'}</Card.Text>
 
+        {/* Botón de favoritos */}
+        <Button 
+          variant="outline-danger"
+          className="mb-2"
+          onClick={toggleFavorite}
+        >
+          {isFavorite ? <FaHeart color="red" /> : <FaRegHeart />} Favorito
+        </Button>
+
+        {/* Si el usuario es el dueño, mostrar opciones de gestión */}
         {isOwner ? (
           <>
             <Button variant="warning" className="mt-2" onClick={reduceStock} disabled={stock <= 0}>
