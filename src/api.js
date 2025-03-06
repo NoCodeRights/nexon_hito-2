@@ -5,7 +5,9 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // 🔹 Permite enviar credenciales al backend
+  withCredentials: true, // Permite enviar credenciales (cookies, tokens, etc.)
 });
+
+console.log("API baseURL:", import.meta.env.VITE_API_URL); // Para confirmar la URL en la consola
 
 export default api;

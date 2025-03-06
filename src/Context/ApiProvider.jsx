@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { ApiContext } from "./ApiContext";
 import PropTypes from "prop-types";
-import api from "../api"; // 🔹 Importamos axios configurado
+import api from "../api"; // Importamos axios configurado
 
 const ApiProvider = ({ children }) => {
   const [products, setProducts] = useState([]);

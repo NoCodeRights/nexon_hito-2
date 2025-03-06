@@ -1,7 +1,7 @@
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserContext from '../Context/UserContext';
-import api from '../api'; //Importamos axios para hacer peticiones
+import api from '../api'; // Importa axios configurado
 
 const Register = () => {
   const [name, setName] = useState('');
