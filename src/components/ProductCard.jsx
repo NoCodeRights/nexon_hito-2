@@ -18,6 +18,7 @@ const ProductCard = ({ product }) => {
   const [editedPrice, setEditedPrice] = useState(product.price);
   const [editedStock, setEditedStock] = useState(product.stock);
   const [editedImage, setEditedImage] = useState(null);
+  const [expanded, setExpanded] = useState(false);
 
   if (!product) {
     return <p>Producto no disponible</p>;
@@ -28,11 +29,11 @@ const ProductCard = ({ product }) => {
   if (!backendUrl) {
     console.error("VITE_BACKEND_URL no está definido en las variables de entorno");
   }
-  
+
   const token = localStorage.getItem("token");
   const isOwner = user && user.id === user_id;
 
-  // Cargar favoritos (usando clave específica si el usuario está autenticado)
+  // Cargar favoritos usando una clave específica si el usuario está autenticado
   useEffect(() => {
     const favKey = user ? `favorites_${user.id}` : "favorites";
     const storedFavorites = JSON.parse(localStorage.getItem(favKey)) || [];
@@ -75,7 +76,7 @@ const ProductCard = ({ product }) => {
       if (editedImage) {
         formData.append("image", editedImage);
       }
-      // Suponiendo que existe un endpoint PUT /products/:id para actualizar el producto
+      
       const response = await api.put(`/products/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -92,6 +93,7 @@ const ProductCard = ({ product }) => {
 
   // Función para eliminar producto (acción protegida)
   const deleteProduct = async () => {
+    console.log("Se ha presionado el botón eliminar para el producto", id);
     try {
       await api.delete(`/products/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       fetchProducts();
@@ -100,14 +102,11 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // Función para comprar (agrega al carrito y redirige)
+  // Función para comprar: agregar al carrito y redirigir
   const handleBuyNow = () => {
     addToCart(product);
     navigate('/carrito');
   };
-
-  // Para mostrar/ocultar la descripción del producto (ver más)
-  const [expanded, setExpanded] = useState(false);
 
   return (
     <Card style={{ width: '18rem' }} className="mb-3">
@@ -122,8 +121,7 @@ const ProductCard = ({ product }) => {
       />
       <Card.Body>
         <Card.Title>{title}</Card.Title>
-        
-        {/* Botón para mostrar u ocultar descripción */}
+        {/* Botón para mostrar/ocultar la descripción */}
         {expanded && <Card.Text>{description}</Card.Text>}
         <Button variant="link" onClick={() => setExpanded(!expanded)}>
           {expanded ? "Ver menos" : "Ver más"}
