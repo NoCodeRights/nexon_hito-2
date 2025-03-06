@@ -11,11 +11,19 @@ const ApiProvider = ({ children }) => {
     try {
       const response = await api.get("/products");
       console.log("Respuesta de la API:", response.data);
-      setProducts(response.data);
+  
+      if (Array.isArray(response.data)) {
+        setProducts(response.data);
+      } else {
+        console.error("La respuesta de productos no es un array:", response.data);
+        // Opcionalmente, muestra un mensaje o establece products a un array vacío
+        setProducts([]);
+      }
     } catch (error) {
       console.error("Error al obtener productos:", error);
     }
   };
+  
 
   useEffect(() => {
     fetchProducts();

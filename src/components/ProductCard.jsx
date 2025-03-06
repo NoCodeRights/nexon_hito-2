@@ -11,16 +11,16 @@ const ProductCard = ({ product }) => {
   }
 
   const { id, title, price, stock, image_url } = product;
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   return (
     <Card style={{ width: '18rem' }} className="mb-3">
       <Card.Img
         variant="top"
-        src={image_url ? `${apiUrl}${image_url}` : '/fallback-image.jpg'}
+        src={image_url ? `${backendUrl}${image_url}` : '/fallback-image.jpg'}
         alt={title}
         onError={(e) => {
-          console.log("Error cargando la imagen:", image_url);
+          console.error("Error cargando la imagen:", e.target.src);
           e.target.src = '/fallback-image.jpg';
         }}
       />
