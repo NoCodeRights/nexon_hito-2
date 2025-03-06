@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ApiContext } from '../Context/ApiContext';
-import { Card, Button } from 'react-bootstrap';
+import { Card, Button, Form } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import api from '../api'; // Axios configurado
 import UserContext from '../Context/UserContext';
@@ -13,84 +13,101 @@ const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const [imgError, setImgError] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  
+  const [editMode, setEditMode] = useState(false);
+  // Estados para edición (solo para el dueño)
+  const [editedPrice, setEditedPrice] = useState(product.price);
+  const [editedStock, setEditedStock] = useState(product.stock);
+  const [editedImage, setEditedImage] = useState(null);
+
   if (!product) {
     return <p>Producto no disponible</p>;
   }
 
-  const { id, title, price, stock, image_url, user_id } = product;
+  const { id, title, price, stock, image_url, user_id, description } = product;
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  if (!backendUrl) {
+    console.error("VITE_BACKEND_URL no está definido en las variables de entorno");
+  }
+  
   const token = localStorage.getItem("token");
   const isOwner = user && user.id === user_id;
 
-  // Verificar si el producto está en favoritos al cargar la página
+  // Cargar favoritos (usando clave específica si el usuario está autenticado)
   useEffect(() => {
-    const storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    const favKey = user ? `favorites_${user.id}` : "favorites";
+    const storedFavorites = JSON.parse(localStorage.getItem(favKey)) || [];
     setIsFavorite(storedFavorites.some(fav => fav.id === id));
-  }, [id]);
+  }, [id, user]);
 
-  // Agregar o quitar de favoritos
+  // Toggle para favoritos
   const toggleFavorite = () => {
-    let storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
-    
+    const favKey = user ? `favorites_${user.id}` : "favorites";
+    let storedFavorites = JSON.parse(localStorage.getItem(favKey)) || [];
     if (isFavorite) {
       storedFavorites = storedFavorites.filter(fav => fav.id !== id);
     } else {
       storedFavorites.push(product);
     }
-
-    localStorage.setItem("favorites", JSON.stringify(storedFavorites));
+    localStorage.setItem(favKey, JSON.stringify(storedFavorites));
     setIsFavorite(!isFavorite);
   };
 
-  // Reducir stock (requiere token)
-  const reduceStock = async () => {
-    if (stock > 0) {
-      try {
-        await api.put(
-          `/products/${id}/reduce-stock`,
-          {},
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        fetchProducts();
-      } catch (error) {
-        console.error("Error reduciendo stock:", error);
-      }
-    }
-  };
-
-  // Aumentar stock (requiere token)
-  const increaseStock = async () => {
+  // Función para actualizar stock (reduce o aumenta) – acción protegida
+  const updateStock = async (action) => {
     try {
       await api.put(
-        `/products/${id}/increase-stock`,
+        `/products/${id}/${action}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchProducts();
     } catch (error) {
-      console.error("Error aumentando stock:", error);
+      console.error(`Error ${action === "reduce-stock" ? "reduciendo" : "aumentando"} stock:`, error);
     }
   };
 
-  // Eliminar producto (requiere token)
+  // Función para actualizar producto (editar precio, stock y/o imagen)
+  const updateProduct = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("price", editedPrice);
+      formData.append("stock", editedStock);
+      if (editedImage) {
+        formData.append("image", editedImage);
+      }
+      // Suponiendo que existe un endpoint PUT /products/:id para actualizar el producto
+      const response = await api.put(`/products/${id}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`
+        }
+      });
+      console.log("Producto actualizado:", response.data);
+      setEditMode(false);
+      fetchProducts();
+    } catch (error) {
+      console.error("Error actualizando producto:", error);
+    }
+  };
+
+  // Función para eliminar producto (acción protegida)
   const deleteProduct = async () => {
     try {
-      await api.delete(
-        `/products/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.delete(`/products/${id}`, { headers: { Authorization: `Bearer ${token}` } });
       fetchProducts();
     } catch (error) {
       console.error("Error eliminando producto:", error);
     }
   };
 
-  // Comprar producto: agregar al carrito y redirigir
+  // Función para comprar (agrega al carrito y redirige)
   const handleBuyNow = () => {
     addToCart(product);
     navigate('/carrito');
   };
+
+  // Para mostrar/ocultar la descripción del producto (ver más)
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <Card style={{ width: '18rem' }} className="mb-3">
@@ -105,33 +122,69 @@ const ProductCard = ({ product }) => {
       />
       <Card.Body>
         <Card.Title>{title}</Card.Title>
-        <Card.Text>Precio: ${Number(price)}</Card.Text>
-        <Card.Text>Stock disponible: {stock > 0 ? stock : 'Sin stock'}</Card.Text>
-
-        {/* Botón de favoritos */}
-        <Button 
-          variant="outline-danger"
-          className="mb-2"
-          onClick={toggleFavorite}
-        >
-          {isFavorite ? <FaHeart color="red" /> : <FaRegHeart />} Favorito
+        
+        {/* Botón para mostrar u ocultar descripción */}
+        {expanded && <Card.Text>{description}</Card.Text>}
+        <Button variant="link" onClick={() => setExpanded(!expanded)}>
+          {expanded ? "Ver menos" : "Ver más"}
         </Button>
-
-        {/* Si el usuario es el dueño, mostrar opciones de gestión */}
-        {isOwner ? (
+        
+        {editMode && isOwner ? (
           <>
-            <Button variant="warning" className="mt-2" onClick={reduceStock} disabled={stock <= 0}>
+            <Form.Group className="mb-2">
+              <Form.Label>Precio</Form.Label>
+              <Form.Control 
+                type="number" 
+                value={editedPrice} 
+                onChange={(e) => setEditedPrice(e.target.value)} 
+              />
+            </Form.Group>
+            <Form.Group className="mb-2">
+              <Form.Label>Stock</Form.Label>
+              <Form.Control 
+                type="number" 
+                value={editedStock} 
+                onChange={(e) => setEditedStock(e.target.value)} 
+              />
+            </Form.Group>
+            <Form.Group className="mb-2">
+              <Form.Label>Imagen</Form.Label>
+              <Form.Control 
+                type="file" 
+                onChange={(e) => setEditedImage(e.target.files[0])} 
+              />
+            </Form.Group>
+            <Button variant="primary" onClick={updateProduct}>
+              Guardar cambios
+            </Button>
+            <Button variant="secondary" onClick={() => setEditMode(false)} className="ms-2">
+              Cancelar
+            </Button>
+          </>
+        ) : isOwner ? (
+          <>
+            <Card.Text>Precio: ${Number(price)}</Card.Text>
+            <Card.Text>Stock disponible: {stock > 0 ? stock : 'Sin stock'}</Card.Text>
+            <Button variant="warning" className="mt-2" onClick={() => updateStock("reduce-stock")} disabled={stock <= 0}>
               Reducir stock
             </Button>
-            <Button variant="info" className="mt-2" onClick={increaseStock}>
+            <Button variant="info" className="mt-2" onClick={() => updateStock("increase-stock")}>
               Aumentar stock
             </Button>
             <Button variant="danger" className="mt-2" onClick={deleteProduct}>
               Eliminar producto
             </Button>
+            <Button variant="outline-primary" className="mt-2" onClick={() => setEditMode(true)}>
+              Editar producto
+            </Button>
           </>
         ) : (
           <>
+            <Card.Text>Precio: ${Number(price)}</Card.Text>
+            <Card.Text>Stock disponible: {stock > 0 ? stock : 'Sin stock'}</Card.Text>
+            <Button variant="outline-danger" className="mb-2" onClick={toggleFavorite}>
+              {isFavorite ? <FaHeart color="red" /> : <FaRegHeart />} Favorito
+            </Button>
             <Button variant="primary" onClick={() => addToCart(product)} disabled={stock <= 0}>
               {stock > 0 ? 'Agregar al carrito' : 'Sin stock'}
             </Button>
@@ -153,6 +206,7 @@ ProductCard.propTypes = {
     stock: PropTypes.number.isRequired,
     image_url: PropTypes.string,
     user_id: PropTypes.number.isRequired,
+    description: PropTypes.string,
   }).isRequired,
 };
 

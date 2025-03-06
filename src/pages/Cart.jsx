@@ -6,7 +6,6 @@ import api from "../api";
 const Cart = () => {
   const { cart, fetchProducts, setCart } = useContext(ApiContext);
 
-  // Función para proceder a la compra, reduciendo el stock por cada unidad
   const handleCheckout = async () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -14,21 +13,22 @@ const Cart = () => {
       return;
     }
     try {
-      for (let item of cart) {
-        const quantity = item.quantity || 1;
-        for (let i = 0; i < quantity; i++) {
-          await api.put(
-            `/products/${item.id}/reduce-stock`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-        }
-      }
+      // Usamos Promise.all para ejecutar todas las solicitudes concurrentemente
+      await Promise.all(
+        cart.flatMap((item) =>
+          // Para cada producto, se crean tantas promesas como cantidad tenga
+          Array.from({ length: item.quantity || 1 }).map(() =>
+            api.put(
+              `/products/${item.id}/reduce-stock`,
+              {},
+              { headers: { Authorization: `Bearer ${token}` } }
+            )
+          )
+        )
+      );
       alert("Compra exitosa");
-      // Vaciar el carrito después de la compra
-      setCart([]);
-      // Actualizar la lista de productos para reflejar el stock actualizado
-      fetchProducts();
+      setCart([]);       // Vaciar el carrito después de la compra
+      fetchProducts();   // Actualizar la lista de productos (para ver el stock actualizado)
     } catch (error) {
       console.error("Error al procesar la compra:", error);
       alert("Error al procesar la compra");
@@ -36,15 +36,10 @@ const Cart = () => {
   };
 
   // Función para eliminar un producto individual del carrito
-  const removeItem = (id) => {
-    const updatedCart = cart.filter((item) => item.id !== id);
-    setCart(updatedCart);
-  };
-
+  const removeItem = (id) => setCart(cart.filter((item) => item.id !== id));
+  
   // Función para limpiar todo el carrito
-  const clearCart = () => {
-    setCart([]);
-  };
+  const clearCart = () => setCart([]);
 
   return (
     <Container>
@@ -60,13 +55,18 @@ const Cart = () => {
                   src={
                     item.image_url
                       ? `${import.meta.env.VITE_BACKEND_URL}${item.image_url}`
-                      : '/fallback-image.jpg'
+                      : "/fallback-image.jpg"
                   }
                   alt={item.title}
                   width="50"
                 />
                 {item.title} - Cantidad: {item.quantity} - Precio: ${item.price * item.quantity}
-                <Button variant="danger" size="sm" onClick={() => removeItem(item.id)} className="ms-2">
+                <Button 
+                  variant="danger" 
+                  size="sm" 
+                  onClick={() => removeItem(item.id)} 
+                  className="ms-2"
+                >
                   Eliminar
                 </Button>
               </ListGroup.Item>

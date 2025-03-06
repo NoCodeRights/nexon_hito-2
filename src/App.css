@@ -152,6 +152,16 @@
   display: grid;
   gap: 55px;
 }
+.card {
+  width: 333px !important;
+}
+.card-body button {
+  margin: 11px !important;
+}
+.container h2 {
+  padding: 33px;
+  text-align: center
+}
 
 
 @media (min-width: 1200px) {
