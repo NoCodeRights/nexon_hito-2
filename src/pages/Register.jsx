@@ -1,8 +1,7 @@
 import { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import UserContext from '../Context/UserContext';
-
-const API_URL = import.meta.env.VITE_API_URL + "/users";
+import api from '../api'; //Importamos axios para hacer peticiones
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -17,25 +16,13 @@ const Register = () => {
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
+      const response = await api.post("/users/register", { name, email, password });
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-
-      if (data.token) {
-        login(data.token);
+      if (response.data.token) {
+        login(response.data.token);
         navigate('/perfil');
       } else {
-        setError(data.error || 'Error en el registro');
+        setError(response.data.error || 'Error en el registro');
       }
     } catch (err) {
       console.error('Error en el registro:', err);

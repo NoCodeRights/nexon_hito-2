@@ -5,6 +5,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true, // 🔹 Permite enviar credenciales al backend
 });
 
 export default api;
