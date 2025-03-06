@@ -17,11 +17,15 @@ const ProductCard = ({ product }) => {
   }
 
   const { id, title, price, stock, image_url, user_id } = product;
-  const backendUrl = import.meta.env.VITE_BACKEND_URL; 
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  if (!backendUrl) {
+    console.error("VITE_BACKEND_URL no está definido en las variables de entorno");
+  }
+  
   const isOwner = user && user.id === user_id;
   const token = localStorage.getItem("token");
 
-  // Función para reducir stock (acción protegida)
+  // Reducir stock (requiere token)
   const reduceStock = async () => {
     if (stock > 0) {
       try {
@@ -37,7 +41,7 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // Función para aumentar stock (acción protegida)
+  // Aumentar stock (requiere token)
   const increaseStock = async () => {
     try {
       await api.put(
@@ -51,7 +55,7 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // Función para eliminar producto (acción protegida)
+  // Eliminar producto (requiere token)
   const deleteProduct = async () => {
     try {
       await api.delete(
@@ -64,7 +68,7 @@ const ProductCard = ({ product }) => {
     }
   };
 
-  // Función para comprar el producto: agrega al carrito y redirige a la página de carrito
+  // Comprar producto: agregar al carrito y redirigir
   const handleBuyNow = () => {
     addToCart(product);
     navigate('/carrito');
@@ -74,7 +78,11 @@ const ProductCard = ({ product }) => {
     <Card style={{ width: '18rem' }} className="mb-3">
       <Card.Img
         variant="top"
-        src={image_url && !imgError ? `${backendUrl}${image_url}` : '/fallback-image.jpg'}
+        src={
+          image_url && !imgError 
+            ? `${backendUrl}${image_url}` 
+            : '/fallback-image.jpg'
+        }
         alt={title}
         onError={(e) => {
           console.error("Error cargando la imagen:", e.target.src);
@@ -88,44 +96,22 @@ const ProductCard = ({ product }) => {
 
         {isOwner ? (
           <>
-            <Button
-              variant="warning"
-              className="mt-2"
-              onClick={reduceStock}
-              disabled={stock <= 0}
-            >
+            <Button variant="warning" className="mt-2" onClick={reduceStock} disabled={stock <= 0}>
               Reducir stock
             </Button>
-            <Button
-              variant="info"
-              className="mt-2"
-              onClick={increaseStock}
-            >
+            <Button variant="info" className="mt-2" onClick={increaseStock}>
               Aumentar stock
             </Button>
-            <Button
-              variant="danger"
-              className="mt-2"
-              onClick={deleteProduct}
-            >
+            <Button variant="danger" className="mt-2" onClick={deleteProduct}>
               Eliminar producto
             </Button>
           </>
         ) : (
           <>
-            <Button
-              variant="primary"
-              onClick={() => addToCart(product)}
-              disabled={stock <= 0}
-            >
+            <Button variant="primary" onClick={() => addToCart(product)} disabled={stock <= 0}>
               {stock > 0 ? 'Agregar al carrito' : 'Sin stock'}
             </Button>
-            <Button
-              variant="success"
-              className="mt-2"
-              onClick={handleBuyNow}
-              disabled={stock <= 0}
-            >
+            <Button variant="success" className="mt-2" onClick={handleBuyNow} disabled={stock <= 0}>
               Comprar ahora
             </Button>
           </>
